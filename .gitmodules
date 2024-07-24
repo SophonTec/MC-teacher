@@ -1,0 +1,6 @@
+[submodule "ext/mcpi"]
+	path = ext/mcpi
+	url = git@github.com:martinohanlon/mcpi.git
+[submodule "ext/Voyager"]
+	path = ext/Voyager
+	url = git@github.com:MineDojo/Voyager.git
