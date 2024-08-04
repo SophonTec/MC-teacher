@@ -4,3 +4,6 @@
 [submodule "ext/Voyager"]
 	path = ext/Voyager
 	url = git@github.com:MineDojo/Voyager.git
+[submodule "ext/MineDojo"]
+	path = ext/MineDojo
+	url = git@github.com:lihe8811/MineDojo.git
