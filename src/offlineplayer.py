@@ -2,15 +2,24 @@ import requests
 from mcpi.minecraft import Minecraft
 from mcpi import vec3
 import time
+import os
+from dotenv import load_dotenv
 from javascript import require, On, console
+
+load_dotenv()
 
 # 载入 mineflayer 模块
 mineflayer = require("mineflayer")
+# import mineflayer from 'mineflayer'
+
+BOT_NAME = "test_ironman"
+DEBUG = True
+COMMAND_TAG = "$"
 
 # 配置服务器信息
 HOST = '127.0.0.1'  # 替换为你的服务器地址
 PORT = 25565        # 替换为你的服务器端口
-USERNAME = 'test_ironman'
+USERNAME = BOT_NAME
 
 # 创建 mineflayer 机器人
 bot = mineflayer.createBot({
@@ -21,7 +30,8 @@ bot = mineflayer.createBot({
 })
 
 # OpenAI API 配置
-API_KEY = ''
+API_KEY = os.environ["OPENAI_API"]
+print(API_KEY)
 API_URL = 'https://api.openai.com/v1/chat/completions'  # GPT-4 Chat API
 
 def get_chatgpt_response(prompt):
@@ -56,25 +66,21 @@ def handle_spawn(*args):
 def handle_chat(this, username, message, *args):
     if username == bot.username:
         return
-    if message.startswith("ironman"):
-        generat_ironman()
-    if message.startswith("pos"):
+    
+    if DEBUG:
+        print(f"USER: {message}")
+
+    if message.startswith(COMMAND_TAG):  # user command
+        message = message[1:].lower()
+        print(f"USER Com: {message}")
+        if message.startswith("ironman"):
+            generate_ironman()
+    else:  # user dialog
+        previous_messages.add(message)
         response = get_chatgpt_response(message)
-        bot.chat(f"ChatGPT: {response}")
-    elif message.startswith("wearing"):
-        response = get_chatgpt_response(message)
-        bot.chat(f"ChatGPT: {response}")
-    elif message.startswith("spawn"):
-        response = get_chatgpt_response(message)
-        bot.chat(f"ChatGPT: {response}")
-    elif message.startswith("block"):
-        response = get_chatgpt_response(message)
-        bot.chat(f"ChatGPT: {response}")
-    else:
-        if message not in previous_messages:
-            previous_messages.add(message)
-            response = get_chatgpt_response(message)
-            bot.chat(f"ChatGPT: {response}")
+        if DEBUG:
+            print(f"GPT: {response}")
+        bot.chat(f"{BOT_NAME}: {response}")
 
 @On(bot, 'end')
 def handle_end(*args):
@@ -84,7 +90,7 @@ def handle_end(*args):
 def handle_error(*args):
     print("An error occurred:", args)
 
-def generat_ironman():
+def generate_ironman():
     from mcpi.minecraft import Minecraft
     from mcpi import block
     import time
@@ -94,15 +100,16 @@ def generat_ironman():
     # 获取玩家的当前位置
     x, y, z = mc.player.getTilePos()
 
+    # new position
+    x, y, z = x, y, z + 2
     # 生成铁傀儡的结构
     # 放置铁块形成 T 形
+    mc.setBlock(x, y, z, block.IRON_BLOCK.id)  # 身体
     time.sleep(1)
-    mc.setBlock(x, y, z, block.IRON_BLOCK.id)
-    time.sleep(1)          # 身体
-    mc.setBlock(x, y + 1, z, block.IRON_BLOCK.id) 
-    time.sleep(1)     # 身体
-    mc.setBlock(x - 1, y + 1, z, block.IRON_BLOCK.id) 
-    time.sleep(1) # 左臂
+    mc.setBlock(x, y + 1, z, block.IRON_BLOCK.id)  # 身体
+    time.sleep(1)
+    mc.setBlock(x - 1, y + 1, z, block.IRON_BLOCK.id)  # 左臂
+    time.sleep(1)
     mc.setBlock(x + 1, y + 1, z, block.IRON_BLOCK.id)  # 右臂
 
     # 放置南瓜头
@@ -110,9 +117,3 @@ def generat_ironman():
     mc.setBlock(x, y + 2, z, block.PUMPKIN.id)  # 南瓜头（可以是雕刻的南瓜）
 
     print("铁傀儡生成完毕！")
-
-
-
-
-
-
