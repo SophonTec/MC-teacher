@@ -1,2 +1,4 @@
 mcpi
-
+python-dotenv
+requests
+javascript
